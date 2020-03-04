@@ -1,5 +1,6 @@
 package com.example.getmesocialsevice.resource;
 
+import com.amazonaws.services.securitytoken.model.InvalidIdentityTokenException;
 import com.example.getmesocialsevice.exception.MyCustomException;
 import com.example.getmesocialsevice.model.User;
 import com.example.getmesocialsevice.service.UserService;
@@ -45,6 +46,16 @@ public class UserResource {
     @DeleteMapping
     public void deleteUser(@RequestParam("userId") String userId) {
         userService.deleteUser(userId);
+    }
+
+    @GetMapping("/me")
+    public User me(@RequestParam("idToken") String idToken) {
+        if(userService.isValidUser(idToken)) {
+            String email = userService.firebaseUser.getEmail();
+            return userService.getByEmail(email);
+        } else {
+            throw new InvalidIdentityTokenException("Token Invalid ...");
+        }
     }
 
 }
